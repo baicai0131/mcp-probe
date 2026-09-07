@@ -6,6 +6,39 @@ import {
   MCP_METHODS
 } from './protocol.js';
 
+/**
+ * Tokenizes a command string into arguments while respecting double and single quotes
+ * @param {string} cmdStr
+ * @returns {string[]}
+ */
+export function splitCommand(cmdStr) {
+  if (!cmdStr || typeof cmdStr !== 'string') return [];
+  const tokens = [];
+  let current = '';
+  let inDouble = false;
+  let inSingle = false;
+
+  for (let i = 0; i < cmdStr.length; i++) {
+    const char = cmdStr[i];
+    if (char === '"' && !inSingle) {
+      inDouble = !inDouble;
+    } else if (char === "'" && !inDouble) {
+      inSingle = !inSingle;
+    } else if ((char === ' ' || char === '\t') && !inDouble && !inSingle) {
+      if (current.length > 0) {
+        tokens.push(current);
+        current = '';
+      }
+    } else {
+      current += char;
+    }
+  }
+  if (current.length > 0) {
+    tokens.push(current);
+  }
+  return tokens;
+}
+
 export class StdioClient {
   /**
    * @param {object} options
@@ -43,10 +76,10 @@ export class StdioClient {
     }
 
     const isWindows = process.platform === 'win32';
-    let execCmd = this.command;
-    let execArgs = this.args;
+    const tokens = splitCommand(this.command);
+    const execCmd = tokens[0] || this.command;
+    const execArgs = [...tokens.slice(1), ...this.args];
 
-    // If args is empty and command contains spaces, parse via shell
     const spawnOptions = {
       cwd: this.cwd,
       env: { ...process.env, ...this.env },
@@ -54,11 +87,7 @@ export class StdioClient {
       shell: isWindows ? true : false
     };
 
-    if (execArgs.length === 0) {
-      this.process = spawn(execCmd, spawnOptions);
-    } else {
-      this.process = spawn(execCmd, execArgs, spawnOptions);
-    }
+    this.process = spawn(execCmd, execArgs, spawnOptions);
 
     this.process.stdout.on('data', (chunk) => {
       this._handleData(chunk.toString('utf-8'));

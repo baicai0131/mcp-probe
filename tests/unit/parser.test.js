@@ -1,6 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseArgs } from '../../src/cli/parser.js';
+import { splitCommand } from '../../src/client/stdio-client.js';
 
 describe('CLI Parser Unit Tests', () => {
   test('parses basic command and positional args', () => {
@@ -36,5 +37,18 @@ describe('CLI Parser Unit Tests', () => {
     assert.equal(res.command, 'test');
     assert.equal(res.options.server, 'node s.js');
     assert.deepEqual(res.positionals, ['extra1', 'extra2']);
+  });
+
+  test('splitCommand splits arguments while preserving quoted values', () => {
+    assert.deepEqual(splitCommand('node ./server.js'), ['node', './server.js']);
+    assert.deepEqual(
+      splitCommand('node "/path with spaces/server.js" --flag'),
+      ['node', '/path with spaces/server.js', '--flag']
+    );
+    assert.deepEqual(
+      splitCommand("python 'my server.py'"),
+      ['python', 'my server.py']
+    );
+    assert.deepEqual(splitCommand(''), []);
   });
 });
