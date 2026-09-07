@@ -1,0 +1,59 @@
+{
+  "name": "Weather MCP Server Test Suite",
+  "description": "Validation and integration test suite for Weather MCP Server",
+  "server": {
+    "command": "node ./server.js",
+    "timeout": 5000
+  },
+  "tests": [
+    {
+      "name": "Schema: Ensure weather tools adhere to JSON Schema",
+      "type": "schema_validation"
+    },
+    {
+      "name": "Weather: Get weather for Tokyo in Celsius",
+      "type": "tool_call",
+      "tool": "get_current_weather",
+      "args": {
+        "city": "Tokyo",
+        "unit": "celsius"
+      },
+      "expect": {
+        "error": false,
+        "content_json": {
+          "city": "Tokyo",
+          "temperature": 22,
+          "condition": "Rainy"
+        },
+        "max_duration_ms": 1000
+      }
+    },
+    {
+      "name": "Weather: Get weather for New York in Fahrenheit",
+      "type": "tool_call",
+      "tool": "get_current_weather",
+      "args": {
+        "city": "New York",
+        "unit": "fahrenheit"
+      },
+      "expect": {
+        "error": false,
+        "content_json": {
+          "unit": "°F"
+        }
+      }
+    },
+    {
+      "name": "Error: Unknown city handling",
+      "type": "tool_call",
+      "tool": "get_current_weather",
+      "args": {
+        "city": "Atlantis"
+      },
+      "expect": {
+        "error": true,
+        "content_contains": "weather data not available"
+      }
+    }
+  ]
+}

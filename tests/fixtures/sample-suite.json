@@ -1,0 +1,80 @@
+{
+  "name": "Mock Math Server Comprehensive Suite",
+  "description": "Integration and spec conformance test suite for mock-math-server",
+  "server": {
+    "command": "node ./tests/fixtures/mock-mcp-server.js",
+    "timeout": 5000
+  },
+  "tests": [
+    {
+      "name": "Verify all tools comply with JSON Schema",
+      "type": "schema_validation"
+    },
+    {
+      "name": "Tool: calculate addition (15 + 27)",
+      "type": "tool_call",
+      "tool": "calculate",
+      "args": {
+        "operation": "add",
+        "a": 15,
+        "b": 27
+      },
+      "expect": {
+        "error": false,
+        "content_contains": "42",
+        "max_duration_ms": 2000
+      }
+    },
+    {
+      "name": "Tool: calculate multiplication (6 * 7)",
+      "type": "tool_call",
+      "tool": "calculate",
+      "args": {
+        "operation": "multiply",
+        "a": 6,
+        "b": 7
+      },
+      "expect": {
+        "error": false,
+        "content_matches": "Result: 42"
+      }
+    },
+    {
+      "name": "Tool: echo structured JSON payload",
+      "type": "tool_call",
+      "tool": "echo",
+      "args": {
+        "payload": {
+          "status": "active",
+          "count": 100,
+          "tags": ["alpha", "beta"]
+        }
+      },
+      "expect": {
+        "error": false,
+        "content_json": {
+          "status": "active",
+          "count": 100
+        }
+      }
+    },
+    {
+      "name": "Tool: intentional error reporting",
+      "type": "tool_call",
+      "tool": "error_trigger",
+      "args": {},
+      "expect": {
+        "error": true,
+        "content_contains": "Operation failed intentionally"
+      }
+    },
+    {
+      "name": "Resource: read application settings",
+      "type": "resource_check",
+      "uri": "config://settings",
+      "expect": {
+        "content_contains": "production"
+      }
+    }
+  ]
+}

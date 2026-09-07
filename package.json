@@ -1,0 +1,36 @@
+{
+  "name": "mcp-probe",
+  "version": "0.1.0",
+  "description": "A fast, automated CLI test runner and specification validator for Model Context Protocol (MCP) servers",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-agent",
+    "testing",
+    "ci-cd",
+    "cli",
+    "json-rpc"
+  ],
+  "author": "baicai0131",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "mcp-probe": "./bin/mcp-probe.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "test:unit": "node --test tests/unit/**/*.test.js",
+    "test:integration": "node --test tests/integration/**/*.test.js",
+    "test:e2e": "node --test tests/e2e/**/*.test.js"
+  }
+}
